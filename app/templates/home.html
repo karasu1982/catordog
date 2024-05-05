@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+  <meta charset="UTF-8">
+  <title>画像判定アプリ</title>
+</head>
+<body>
+  <h2>犬か猫かを画像判定します</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">判定</button>
+  </form>
+
+  {% if prediction %}
+    <h2>判定結果</h2>
+    <p>あなたのアップロードした画像は「{{ prediction }}」でしょう。</p>
+  {% endif %}
+
+</body>
+</html>
