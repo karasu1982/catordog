@@ -23,22 +23,25 @@ def predict(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
+
+            # Renderのフリープランのメモリサイズでも動くように、28*28の軽い画像の処理にする
+
             img_file = form.cleaned_data['image']
-            # 4章で、画像ファイル（img_file）の前処理を追加
             img_file = BytesIO(img_file.read())
-            img = load_img(img_file, target_size=(256, 256))
+            img = load_img(img_file, target_size=(28, 28))
             img_array = img_to_array(img)
-            img_array = img_array.reshape((1, 256, 256, 3))
+            img_array = img_array.reshape((1, 28, 28))
             img_array = img_array/255
+
+            # MINISTの判別モデル（学習済み）を動かす
 
             model_path = os.path.join(settings.BASE_DIR, 'app', 'models', 'model.h5')
             model = load_model(model_path)
             result = model.predict(img_array)
 
-            if result[0][0] > result[0][1]:
-                prediction = '猫'
-            else:
-                prediction = '犬'
+            # 返ってきた結果から、一番確率が高いものをpredictionに入力
+            # MNISTだと数値なので、argmax()の値をそのまま入れている
+            prediction = result.argmax()
 
             return render(request, 'home.html', {'form': form, 'prediction': prediction})
         else:
